@@ -52,7 +52,9 @@ def train_model(filename: str):
     X = np.abs(X)
     X = X.mean(axis=2)
     model = LinearDiscriminantAnalysis()
-    print(f"Accuracy: {cross_val_score(model, X, y, cv=10).mean()}")
+    accuracy = cross_val_score(model, X, y, cv=10).mean()
+    assert accuracy > 0.7
+    print(f"Accuracy: {accuracy}")
     model.fit(X, y)
-    print(model.predict(X))
+
     return model

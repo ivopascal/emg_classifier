@@ -9,7 +9,7 @@ def main():
     print("Found stream!")
     print(streams)
     inlet.open_stream()
-    predictions = np.empty((2160 * 4, 3), dtype='float32')
+    predictions = np.empty((2160 * 4, 1), dtype='float32')
     for i in range(2160 * 4):
         sample, timestamp = inlet.pull_sample()
         print("got %s at time %s" % (sample, timestamp))

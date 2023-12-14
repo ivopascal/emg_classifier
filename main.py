@@ -9,7 +9,6 @@ def predict_from_stream(model, emg_stream):
     features = emg_stream.get_features_if_ready()
     if features is None:
         return None
-    # print(features)
     prediction = model.predict_proba([features])[0]
     mapping = {
         0: -1.0,  # Left
@@ -17,8 +16,7 @@ def predict_from_stream(model, emg_stream):
         2: 0.0,  # Rest
     }
 
-    # print(prediction)
-    return prediction
+    return mapping[prediction.argmax()]
 
 
 def main():
