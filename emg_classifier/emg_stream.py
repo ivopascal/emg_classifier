@@ -5,12 +5,7 @@ import scipy
 from mne_realtime import LSLClient, MockLSLStream
 import mne
 
-DATA_FOLDER = "./data/"
-BUFFER_TIME = 3  # seconds of data kept
-SFREQ = 2048  # It's important to get this correct!
-N_CHANNELS = 4
-EPOCH_TIME = 0.2
-N_CHANNELS_TO_IGNORE = 1
+from settings import DATA_FOLDER, N_CHANNELS, BUFFER_TIME, SFREQ, N_CHANNELS_TO_IGNORE
 
 
 def fifo_buffer(buffer: np.ndarray, new_samples: np.ndarray):

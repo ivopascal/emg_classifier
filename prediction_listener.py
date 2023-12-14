@@ -1,5 +1,3 @@
-from time import sleep
-
 import numpy as np
 from pylsl import StreamInlet, resolve_stream
 
