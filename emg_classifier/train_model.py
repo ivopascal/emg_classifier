@@ -1,4 +1,5 @@
 import mne
+import numpy as np
 import scipy
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import cross_val_score
@@ -32,7 +33,6 @@ def train_model(filename: str):
 
     raw_data = scipy.signal.sosfilt(filters[0]['sos'],  raw.get_data())
     raw_data = scipy.signal.sosfilt(filters[1]['sos'],  raw_data)
-    raw_data = raw_data ** 2
     raw = mne.io.RawArray(raw_data, raw.info)
 
     if t > MOVE_TIME:
@@ -52,12 +52,13 @@ def train_model(filename: str):
         preload=True,
     )
 
+    # 80x4x411
     X = epochs.get_data(copy=True)
     y = epochs.events[:, -1] - 1
-
+    X = np.abs(X)
     X = X.mean(axis=2)
     model = LinearDiscriminantAnalysis()
     print(f"Accuracy: {cross_val_score(model, X, y, cv=10).mean()}")
     model.fit(X, y)
-
+    print(model.predict(X))
     return model

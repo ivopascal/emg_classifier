@@ -32,7 +32,7 @@ class EMGStream:
                                       preload=True)
             print(f"WARNING: Using a FAKE stream from {mock_file}")
             host = "mock_stream"
-            mock_stream = MockLSLStream(host, raw, ch_type='eeg', status=True)
+            mock_stream = MockLSLStream(host, raw, ch_type='eeg', status=False, time_dilation=-60)
             client = LSLClient(info=raw.info, host=host, wait_max=5)
             mock_stream.start()
         else:
@@ -66,6 +66,7 @@ class EMGStream:
             return None
 
         new_samples = new_samples[N_CHANNELS_TO_IGNORE:N_CHANNELS_TO_IGNORE + N_CHANNELS, :]
+        new_samples = new_samples - new_samples.mean(axis=0)
 
         new_samples, self.zis[0] = scipy.signal.sosfilt(self.filters[0]['sos'], new_samples, zi=self.zis[0], axis=1)
         new_samples, self.zis[1] = scipy.signal.sosfilt(self.filters[0]['sos'], new_samples, zi=self.zis[1], axis=1)
@@ -75,16 +76,21 @@ class EMGStream:
 
     def get_epoch_if_ready(self):
         self._update_buffer()
-        if self.unfetched_size <= 0.2 * SFREQ:
+        if self.unfetched_size < 0.2 * SFREQ:
             return None
 
         self.unfetched_size -= 0.2 * SFREQ  # There is a possibility that some EMG samples get used multiple times
-        return self.data_buffer[int(-0.2 * SFREQ):]
+        return self.data_buffer[:, int(-0.2 * SFREQ):]
 
     def get_features_if_ready(self):
         epoch = self.get_epoch_if_ready()
-        if epoch is None:
+        if epoch is None or np.isnan(epoch.sum()):
             return None
-        epoch = epoch ** 2
-        return epoch.mean(axis=1)
+        # (9, 409)
+        epoch = np.abs(epoch)
+        x = epoch.mean(axis=1)
+
+        if np.isnan(x.sum()):
+            return None
+        return x
 
