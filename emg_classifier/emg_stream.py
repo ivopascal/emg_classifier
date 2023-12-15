@@ -31,7 +31,7 @@ class EMGStream:
             client = LSLClient(info=raw.info, host=host, wait_max=5)
             mock_stream.start()
         else:
-            client = LSLClient(host=host, wait_max=5)
+            client = LSLClient(info=mne.create_info(ch_names=ignored_channels+8, sfreq=SFREQ), host=host, wait_max=5)
         self.ignored_channels = ignored_channels
         client.start()
         self.client = client
