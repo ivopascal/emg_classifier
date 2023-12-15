@@ -21,7 +21,7 @@ class EMGStream:
     # This is controlled by fifo_buffer() and get_epoch_if_ready()
 
     def __init__(self, host: Optional[str] = None, mock_file: Optional[str] = None, ignored_channels=1):
-        if not host or host == "mock":
+        if not host or host == "mock" or host == "None":
             assert mock_file
             raw = mne.io.read_raw_gdf(mock_file,
                                       preload=True)
@@ -31,7 +31,7 @@ class EMGStream:
             client = LSLClient(info=raw.info, host=host, wait_max=5)
             mock_stream.start()
         else:
-            client = LSLClient(host=host, wait_max=5)
+            client = LSLClient(info=mne.create_info(ch_names=ignored_channels+8, sfreq=SFREQ), host=host, wait_max=5)
         self.ignored_channels = ignored_channels
         client.start()
         self.client = client

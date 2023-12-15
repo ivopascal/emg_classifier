@@ -42,7 +42,7 @@ if __name__ == "__main__":
     parser.add_argument('host',
                         help='Host of the EEG stream to classify')
     parser.add_argument('ignored_channels',
-                        help='Number of leading channels to ignore. This is usually 32, sometimes 64.')
+                        help='Number of leading channels to ignore. This is usually 32, sometimes 64.', type=int)
     args = parser.parse_args(sys.argv[1:])
 
     main()

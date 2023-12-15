@@ -55,8 +55,8 @@ def train_model(file_path: str):
     X = X.mean(axis=2)
     model = LinearDiscriminantAnalysis()
     accuracy = cross_val_score(model, X, y, cv=10).mean()
-    assert accuracy > 0.8
     print(f"Accuracy: {accuracy}")
+    assert accuracy > 0.8
     model.fit(X, y)
 
     return model
