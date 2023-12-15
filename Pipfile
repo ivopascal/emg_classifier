@@ -10,6 +10,7 @@ pylsl = "*"
 scikit-learn = "*"
 mne-realtime = {file = "https://api.github.com/repos/mne-tools/mne-realtime/zipball/main"}
 pandas = "*"
+scipy = "*"
 
 [dev-packages]
 jupyterlab = "*"

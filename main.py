@@ -1,8 +1,11 @@
+import sys
+
+import mne.utils
+
 from emg_classifier.emg_stream import EMGStream
 from emg_classifier.prediction_stream import PredictionStream
 from emg_classifier.train_model import train_model
-
-DATA_FILE = "record-[2023.12.04-14.29.07].gdf"
+import argparse
 
 
 def predict_from_stream(model, emg_stream):
@@ -20,8 +23,9 @@ def predict_from_stream(model, emg_stream):
 
 
 def main():
-    model = train_model(filename=DATA_FILE)
-    emg_stream = EMGStream(host=None, mock_file=DATA_FILE)
+    model = train_model(file_path=args.train_file)
+    emg_stream = EMGStream(host=args.host, mock_file=args.train_file,
+                           ignored_channels=args.ignored_channels)
     prediction_stream = PredictionStream()
 
     while True:
@@ -31,4 +35,14 @@ def main():
 
 
 if __name__ == "__main__":
+    mne.utils.set_log_level("warning")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('train_file',
+                        help='Path to the data to train the model')
+    parser.add_argument('host',
+                        help='Host of the EEG stream to classify')
+    parser.add_argument('ignored_channels',
+                        help='Number of leading channels to ignore. This is usually 32, sometimes 64.')
+    args = parser.parse_args(sys.argv[1:])
+
     main()

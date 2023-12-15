@@ -1,15 +1,17 @@
+import sys
+
 import mne
 import numpy as np
 import scipy
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import cross_val_score
 
-from settings import DATA_FOLDER, LEFT_HAND_EVENT, RIGHT_HAND_EVENT, END_OF_TRIAL_EVENT, EPOCH_TIME, MOVE_TIME, \
+from settings import LEFT_HAND_EVENT, RIGHT_HAND_EVENT, END_OF_TRIAL_EVENT, EPOCH_TIME, MOVE_TIME, \
     CUE_TIME, EVENT_IDS
 
 
-def train_model(filename: str):
-    raw = mne.io.read_raw_gdf(DATA_FOLDER + filename,
+def train_model(file_path: str):
+    raw = mne.io.read_raw_gdf(file_path,
                               preload=True)
     raw = raw.drop_channels("Channel 1").pick(["EX 1", "EX 2", "EX 3", "EX 4"])
     raw = raw.set_eeg_reference()
@@ -53,7 +55,7 @@ def train_model(filename: str):
     X = X.mean(axis=2)
     model = LinearDiscriminantAnalysis()
     accuracy = cross_val_score(model, X, y, cv=10).mean()
-    assert accuracy > 0.7
+    assert accuracy > 0.8
     print(f"Accuracy: {accuracy}")
     model.fit(X, y)
 

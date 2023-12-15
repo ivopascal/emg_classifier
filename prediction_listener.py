@@ -16,7 +16,7 @@ def main():
         predictions[i, :] = sample
 
     print(predictions)
-    np.savetxt('data/predictions.csv', predictions, delimiter=",")
+    np.savetxt('data/predictions.csv', predictions, delimiter=",")  # noqa
 
 
 if __name__ == '__main__':
