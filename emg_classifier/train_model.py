@@ -1,28 +1,24 @@
+import sys
+
 import mne
 import numpy as np
 import scipy
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import cross_val_score
 
-DATA_FOLDER = './data/'
-left_hand_event = "769"
-right_hand_event = "770"
-end_of_trial_event = "800"
-
-event_ids = dict(left=1, right=2, rest=3)
-
-CUE_TIME = 1.25
-MOVE_TIME = 3.75
-t = 0.2
+from settings import LEFT_HAND_EVENT, RIGHT_HAND_EVENT, END_OF_TRIAL_EVENT, EPOCH_TIME, MOVE_TIME, \
+    CUE_TIME, EVENT_IDS
 
 
-def train_model(filename: str):
-    raw = mne.io.read_raw_gdf(DATA_FOLDER + filename,
+def train_model(file_path: str):
+    raw = mne.io.read_raw_gdf(file_path,
                               preload=True)
     raw = raw.drop_channels("Channel 1").pick(["EX 1", "EX 2", "EX 3", "EX 4"])
     raw = raw.set_eeg_reference()
     raw = raw.set_channel_types(dict.fromkeys(raw.ch_names, "emg"))
-    events, _ = mne.events_from_annotations(raw, event_id={left_hand_event: 1, right_hand_event: 2, end_of_trial_event: 3})
+    events, _ = mne.events_from_annotations(raw, event_id={LEFT_HAND_EVENT: 1,
+                                                           RIGHT_HAND_EVENT: 2,
+                                                           END_OF_TRIAL_EVENT: 3})
 
     filters = [
         mne.filter.create_filter(raw.get_data(), l_freq=30, h_freq=500, method='iir',
@@ -35,9 +31,9 @@ def train_model(filename: str):
     raw_data = scipy.signal.sosfilt(filters[1]['sos'],  raw_data)
     raw = mne.io.RawArray(raw_data, raw.info)
 
-    if t > MOVE_TIME:
+    if EPOCH_TIME > MOVE_TIME:
         return
-    lost_time = MOVE_TIME - t
+    lost_time = MOVE_TIME - EPOCH_TIME
 
     cue_time = CUE_TIME + lost_time / 2  # + because we want to move forward in time
     move_time = MOVE_TIME - lost_time
@@ -45,7 +41,7 @@ def train_model(filename: str):
     epochs = mne.Epochs(
         raw,
         events,
-        event_ids,
+        EVENT_IDS,
         cue_time,
         cue_time + move_time,
         baseline=None,
@@ -58,7 +54,9 @@ def train_model(filename: str):
     X = np.abs(X)
     X = X.mean(axis=2)
     model = LinearDiscriminantAnalysis()
-    print(f"Accuracy: {cross_val_score(model, X, y, cv=10).mean()}")
+    accuracy = cross_val_score(model, X, y, cv=10).mean()
+    assert accuracy > 0.8
+    print(f"Accuracy: {accuracy}")
     model.fit(X, y)
-    print(model.predict(X))
+
     return model
