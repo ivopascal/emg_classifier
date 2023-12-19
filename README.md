@@ -36,6 +36,8 @@ It also expects an available stream of EEG / EMG data.
  7. Run biosemi.exe (search in windows menu)
  8. Set the subset in biosemi.exe to 32. Don't worry too much about the other settings. Click LINK to start
  9. Run LabRecorder.exe to see the EEG stream from Biosemi. It will look something like `Biosemi (SOME_CODE)`
- 10. Run `python your\filpath\filename.gdf SOME_CODE 32`
- 11. Select both the EEG stream and the Prediction stream in LabRecorder and click start.
+10. Copy `.env.template` to `.env`, there set the file path and set `HOST=SOME_CODE`
+11. Run `python main.py`
+12. Select both the EEG stream and the Prediction stream in LabRecorder and click start.
+
 

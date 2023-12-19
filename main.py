@@ -1,3 +1,4 @@
+import os
 import sys
 
 import mne.utils
@@ -6,6 +7,7 @@ from emg_classifier.emg_stream import EMGStream
 from emg_classifier.prediction_stream import PredictionStream
 from emg_classifier.train_model import train_model
 import argparse
+from dotenv import load_dotenv, find_dotenv
 
 
 def predict_from_stream(model, emg_stream):
@@ -23,9 +25,9 @@ def predict_from_stream(model, emg_stream):
 
 
 def main():
-    model = train_model(file_path=args.train_file)
-    emg_stream = EMGStream(host=args.host, mock_file=args.train_file,
-                           ignored_channels=args.ignored_channels)
+    model = train_model(file_path=args.file)
+    emg_stream = EMGStream(host=args.host, mock_file=args.file,
+                           ignored_channels=args.ignored)
     prediction_stream = PredictionStream()
 
     while True:
@@ -36,13 +38,19 @@ def main():
 
 if __name__ == "__main__":
     mne.utils.set_log_level("warning")
+
+    load_dotenv(find_dotenv())
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('train_file',
-                        help='Path to the data to train the model')
-    parser.add_argument('host',
-                        help='Host of the EEG stream to classify')
-    parser.add_argument('ignored_channels',
-                        help='Number of leading channels to ignore. This is usually 32, sometimes 64.', type=int)
+    parser.add_argument('--file',
+                        help='Path to the data to train the model', default=os.getenv('TRAIN_FILE'))
+    parser.add_argument('--host',
+                        help='Host of the EEG stream to classify', default=os.getenv('HOST'))
+    parser.add_argument('--ignored',
+                        help='Number of leading channels to ignore. This is usually 33, sometimes 65.', type=int,
+                        default=int(os.getenv('IGNORED_CHANNELS')))
     args = parser.parse_args(sys.argv[1:])
+
+
 
     main()
