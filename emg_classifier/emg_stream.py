@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 
 import numpy as np
@@ -5,7 +6,8 @@ import scipy
 from mne_realtime import LSLClient, MockLSLStream
 import mne
 
-from settings import N_CHANNELS, BUFFER_TIME, SFREQ, MOCK_TIME_DILATION
+from emg_classifier.util import microvolts_to_volts
+from settings import N_CHANNELS, BUFFER_TIME, SFREQ
 
 
 def fifo_buffer(buffer: np.ndarray, new_samples: np.ndarray):
@@ -27,11 +29,14 @@ class EMGStream:
                                       preload=True)
             print(f"WARNING: Using a FAKE stream from {mock_file}")
             host = "mock_stream"
-            mock_stream = MockLSLStream(host, raw, ch_type='eeg', status=False, time_dilation=MOCK_TIME_DILATION)
+            mock_stream = MockLSLStream(host, raw, ch_type='eeg', status=False,
+                                        time_dilation=int(os.getenv('MOCK_DILATION_TIME')))
             client = LSLClient(info=raw.info, host=host, wait_max=5)
             mock_stream.start()
+            self.stream_microvolts = False
         else:
             client = LSLClient(host=host, wait_max=5)
+            self.stream_microvolts = True
         self.ignored_channels = ignored_channels
         client.start()
         self.client = client
@@ -62,6 +67,8 @@ class EMGStream:
 
         new_samples = new_samples[self.ignored_channels:self.ignored_channels + N_CHANNELS, :]
         new_samples = new_samples - new_samples.mean(axis=0)
+        if self.stream_microvolts:
+            new_samples = microvolts_to_volts(new_samples)
 
         new_samples, self.zis[0] = scipy.signal.sosfilt(self.filters[0]['sos'], new_samples, zi=self.zis[0], axis=1)
         new_samples, self.zis[1] = scipy.signal.sosfilt(self.filters[0]['sos'], new_samples, zi=self.zis[1], axis=1)
