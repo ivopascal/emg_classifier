@@ -14,4 +14,3 @@ EVENT_IDS = dict(left=1, right=2, rest=3)
 CUE_TIME = 1.25
 MOVE_TIME = 3.75
 
-MOCK_TIME_DILATION = -100
