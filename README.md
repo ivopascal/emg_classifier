@@ -40,3 +40,4 @@ It also expects an available stream of EEG / EMG data.
 11. Run `python main.py`
 12. Select both the EEG stream and the Prediction stream in LabRecorder and click start.
 
+
