@@ -39,7 +39,7 @@ def main():
 if __name__ == "__main__":
     mne.utils.set_log_level("warning")
 
-    load_dotenv(find_dotenv())
+    load_dotenv(find_dotenv(), override=True)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--file',
