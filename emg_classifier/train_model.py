@@ -53,6 +53,7 @@ def train_model(file_path: str):
     y = epochs.events[:, -1] - 1
     X = np.abs(X)
     X = X.mean(axis=2)
+    # print(X.mean(axis=1))
     model = LinearDiscriminantAnalysis()
     accuracy = cross_val_score(model, X, y, cv=10).mean()
     print(f"Accuracy: {accuracy}")

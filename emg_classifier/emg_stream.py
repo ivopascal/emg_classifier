@@ -95,4 +95,5 @@ class EMGStream:
 
         if np.isnan(x.sum()):
             return None
+        # print(x)
         return x

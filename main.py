@@ -50,7 +50,7 @@ if __name__ == "__main__":
                         help='Number of leading channels to ignore. This is usually 33, sometimes 65.', type=int,
                         default=int(os.getenv('IGNORED_CHANNELS')))
     args = parser.parse_args(sys.argv[1:])
-
+    print(args)
 
 
     main()
